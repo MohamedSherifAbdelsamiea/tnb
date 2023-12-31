@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  TNBMultusRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: 'TNBMultusRole'
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - events.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: MultusRoleInlinePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - 'codebuild:StartBuild'
+                  - 'logs:DescribeLogStreams'
+                  - 'logs:PutLogEvents'
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                Resource: 
+                  - 'arn:aws:codebuild:*:*:project/tnb*'
+                  - 'arn:aws:logs:*:*:log-group:/aws/codebuild/tnb*'
+              - Effect: Allow
+                Action: 
+                  - 'ec2:CreateNetworkInterface'
+                  - 'ec2:ModifyNetworkInterfaceAttribute'
+                  - 'ec2:AttachNetworkInterface'
+                  - 'ec2:DeleteNetworkInterface'
+                  - 'ec2:CreateTags'
+                Resource: '*'
