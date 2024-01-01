@@ -223,13 +223,35 @@ class CdkTnbStack(Stack):
                             }
                             },detail_type=["CloudFormation Stack Status Change"]))
         CF_DeleteComplete_rule.add_target(targets.LambdaFunction(lambdaReturnTaskToken))
+        #lambda to delete vnfd S3 object
+        lambdadeleteS3VNFD= _lambda.Function(
+            self, 'lambdadeleteS3VNFD',
+            runtime=_lambda.Runtime.PYTHON_3_7,
+            code=_lambda.Code.from_asset('lambda'),
+            handler='lambdadeleteS3VNFD.lambda_handler',
+            timeout=Duration.minutes(2),
+            role=lambda_role,
+            environment={
+                'bucket' : bucket.bucket_name
+            }
+        )
 
+       # Update Step Function ASL file with CDK parameters
+        file_path = 'stepfunction/DeleteFunctionPackage.json'
+        with open(file_path, 'r', encoding='utf-8') as json_file:
+            myasl = json.load(json_file)
+        myasl['States']['DeleteObject']['Parameters']['Bucket']=bucket.bucket_name
+        myasl['States']['DynamoDB DeleteItem']['Parameters']['TableName']=my_table.table_name
+        #myasl['States']['Lambda delete S3']['Parameters']['FunctionName']=lambdadeleteS3VNFD.function_arn
+        with open(file_path, 'w', encoding='utf-8') as json_file:
+            json.dump(myasl, json_file)
         # Create State Machine Step Function - DeleteFunctionPackage
         file = open("stepfunction/DeleteFunctionPackage.json","rt").read()
         cfnStateMachine_DeleteFunctionPackage = sfn.CfnStateMachine(
             self, 'DeleteFunctionPackage', role_arn=sf_role.role_arn,
             definition_string=file
         )
+
         # Create Event Bridge Rule for Delete Network Package
         LambdaDeleteNetworkPackages= _lambda.Function(
             self, 'LambdaDeleteNetworkPackages',
@@ -260,14 +282,7 @@ class CdkTnbStack(Stack):
         )
 
 
-        # Update Step Function ASL file with CDK parameters
-        file_path = 'stepfunction/DeleteFunctionPackage.json'
-        with open(file_path, 'r', encoding='utf-8') as json_file:
-            myasl = json.load(json_file)
-        myasl['States']['DynamoDB DeleteItem']['Parameters']['TableName']=my_table.table_name
-        myasl['States']['DeleteObject']['Parameters']['Bucket']=bucket.bucket_name
-        with open(file_path, 'w', encoding='utf-8') as json_file:
-            json.dump(myasl, json_file)
+ 
 
 
         my_table.add_global_secondary_index(index_name="np-index", partition_key={'name': 'np', 'type': ddb.AttributeType.STRING})
@@ -324,5 +339,6 @@ class CdkTnbStack(Stack):
         # Create AWS TNB service role for a life-cycle hook policy
         if TNBHookRole_exist == False:
             template = cfn_inc.CfnInclude(self, "TNBHookRole", template_file="cfTemplates/TNBHookRole.yaml")
+        
 
 
