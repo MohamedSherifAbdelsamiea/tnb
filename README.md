@@ -37,7 +37,7 @@ For example:
 
 This will invoke the state machine to create a new network instance using the provided network package and name
 
-To instantiate a network, please utilize the InstantiateNS-7o0LTzVDsTxg step function located at InstantiateNS-xxxxxxxx. This step function takes a JSON object as input with the following structure:
+To instantiate a network, please utilize the InstantiateNS-xxxxxxxxx step function located at InstantiateNS-xxxxxxxx. This step function takes a JSON object as input with the following structure:
 
 {
  "Id": "ni-xxxxxxxxxxxxxxxx"
