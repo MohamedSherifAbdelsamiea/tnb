@@ -1,6 +1,3 @@
-![image](https://github.com/MohamedSherifAbdelsamiea/tnb/assets/38582068/78bc15fe-fe13-4936-83e8-55d8ff3af34a)
-
-
 # CDK Initialization from AWS cloudshell:
 
 
@@ -10,6 +7,59 @@
 * pip install -r requirements.txt
 * cdk bootstrap
 * cdk deploy
+
+# Architecture
+
+![image](https://github.com/MohamedSherifAbdelsamiea/tnb/assets/38582068/78bc15fe-fe13-4936-83e8-55d8ff3af34a)
+
+# Description
+
+Define the individual network function (NF) resource requirements, such as compute, storage, and databases, as network function descriptors (NFDs) in the Topology and Orchestration Specification for Cloud Applications (TOSCA) format. Along with these requirements, provide the software images of NFs from your independent software vendor (ISV) as pointers to Amazon ECR images.(VNFDs)
+
+Once upload those files to the respective S3 buckets (tnbpackages-cdkxxxxxx) in the correct paths, EventBridge will be generated to consume those inputs and create function packages and network packages respectively. pointers to the created function packages and network packages are also stored in dynamodb table (CdkTnbStack-tnbconfigxxxxxx)
+
+A network package will be created in the formate (np-xxxxxxx). you can get the created np record in dynamodb table by query the key of S3. 
+
+Use Createnetworkinstance-xxxxx with json input as below to create a network instance. inputs are “Id” which is the network package created and “name” a name for the network instance as example below:
+
+{
+"Id": "np-xxxxxxxxxxxxxx",
+"name": "5G"
+}
+
+Use TerminateNS-xxxxxx step function to instantiate a network. Step function take the below input as JSON object
+
+{
+"Id": "ni-xxxxxxxxxxxxxxxx"
+}
+
+ni object could be query from dynamodb as a key and associated with attribute np (network package)
+
+Use TerminateNS-xxxxxxxx to terminate the network instance. Step function take the below input as JSON object:
+
+{
+"Id": "ni-xxxxxxxxxxxxxxxx"
+}
+
+ni object could be query from dynamodb as a key and associated with attribute np (network package)
+
+use Deletenetworkinstance-xxxxx to delete a network instance,  Step function take the below input as JSON object:
+
+{
+"Id": "ni-xxxxxxxxxxxxxxxx"
+}
+
+ni object could be query from dynamodb as a key and associated with attribute np (network package)
+
+Use DeleteNetworkPackages-xxxxxxx to delete np. step function take the below input as JSON object
+
+{
+"Id": "np-xxxxxxxxxxx",
+"fp": "all" → optional
+}
+
+fp with value all could be included as input to step function which effectively delete all function packages associated with network package and remove all associated files from S3 bucket
+
 
 
 # Welcome to your CDK Python project!
