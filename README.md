@@ -24,15 +24,15 @@ A network package with the Id np-xxxxxxx will be generated. The network package 
 To create a network instance, invoke the state machine located at Createnetworkinstance-xxxxx. Provide the following JSON input:
 {
 "Id": "<network package id>",
-"Name": "<desired name for network instance>"
+"name": "<desired name for network instance>"
 }
 The input parameters are:
 - "Id" - The ID of the network package to use for the instance
-- "Name" - A name to identify the new network instance
+- "name" - A name to identify the new network instance
 For example:
 {
 "Id": "np-0983abdef5566789",
-"Name": "MyNetworkInstance"
+"name": "MyNetworkInstance"
 }
 
 This will invoke the state machine to create a new network instance using the provided network package and name
@@ -61,8 +61,6 @@ To delete a network package, invoke the DeleteNetworkPackages-xxxxxxx step funct
 "fp": "all" // Optional
 }
 Including "fp" : "all" will delete all associated function packages and remove their files from the S3 bucket. The network package ID can be used to query DynamoDB.
-
-
 
 
 # Welcome to your CDK Python project!
