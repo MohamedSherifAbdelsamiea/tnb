@@ -224,7 +224,8 @@ class CdkTnbStack(Stack):
                             },detail_type=["CloudFormation Stack Status Change"]))
         CF_DeleteComplete_rule.add_target(targets.LambdaFunction(lambdaReturnTaskToken))
         #lambda to delete vnfd S3 object
-        lambdadeleteS3VNFD= _lambda.Function(
+        
+        """ lambdadeleteS3VNFD= _lambda.Function(
             self, 'lambdadeleteS3VNFD',
             runtime=_lambda.Runtime.PYTHON_3_7,
             code=_lambda.Code.from_asset('lambda'),
@@ -234,7 +235,7 @@ class CdkTnbStack(Stack):
             environment={
                 'bucket' : bucket.bucket_name
             }
-        )
+        ) """
 
        # Update Step Function ASL file with CDK parameters
         file_path = 'stepfunction/DeleteFunctionPackage.json'
