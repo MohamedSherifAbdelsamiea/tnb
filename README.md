@@ -1,4 +1,4 @@
-![image](https://github.com/MohamedSherifAbdelsamiea/tnb/assets/38582068/d6e93647-1ea1-4cab-9472-60ad994e0548)
+![image](https://github.com/MohamedSherifAbdelsamiea/tnb/assets/38582068/78bc15fe-fe13-4936-83e8-55d8ff3af34a)
 
 
 # CDK Initialization from AWS cloudshell:
