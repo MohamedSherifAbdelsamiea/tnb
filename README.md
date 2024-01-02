@@ -63,7 +63,7 @@ To delete a network package, invoke the DeleteNetworkPackages-xxxxxxx step funct
 Including "fp" : "all" will delete all associated function packages and remove their files from the S3 bucket. The network package ID can be used to query DynamoDB.
 
 
-# Welcome to your CDK Python project!
+<!-- # Welcome to your CDK Python project!
 
 You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`cdk_tnb_stack`)
 which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
@@ -127,3 +127,4 @@ command.
  * `cdk docs`        open CDK documentation
 
 Enjoy!
+ -->
