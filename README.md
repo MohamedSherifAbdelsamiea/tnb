@@ -1,5 +1,5 @@
 # CDK Initialization from AWS cloudshell:
-
+** Account should be Business or Enterprise support plan
 
 * git clone https://github.com/MohamedSherifAbdelsamiea/tnb.git
 * cd tnb
