@@ -16,49 +16,52 @@
 
 Define the individual network function (NF) resource requirements, such as compute, storage, and databases, as network function descriptors (NFDs) in the Topology and Orchestration Specification for Cloud Applications (TOSCA) format. Along with these requirements, provide the software images of NFs from your independent software vendor (ISV) as pointers to Amazon ECR images.(VNFDs)
 
-Once upload those files to the respective S3 buckets (tnbpackages-cdkxxxxxx) in the correct paths, EventBridge will be generated to consume those inputs and create function packages and network packages respectively. pointers to the created function packages and network packages are also stored in dynamodb table (CdkTnbStack-tnbconfigxxxxxx)
+Once you upload those files to the respective S3 buckets (tnbpackages-cdkxxxxxx) in the correct paths, EventBridge will trigger the process to consume those inputs and create function packages and network packages. References to the created function packages and network packages will also be stored in the DynamoDB table (CdkTnbStack-tnbconfigxxxxxx) for tracking. 
 
-A network package will be created in the formate (np-xxxxxxx). you can get the created np record in dynamodb table by query the key of S3. 
 
-Use Createnetworkinstance-xxxxx with json input as below to create a network instance. inputs are “Id” which is the network package created and “name” a name for the network instance as example below:
+A network package with the Id np-xxxxxxx will be generated. The network package record can be retrieved from the DynamoDB table by querying the table with the associated S3 key.
 
+To create a network instance, invoke the state machine located at Createnetworkinstance-xxxxx. Provide the following JSON input:
 {
-"Id": "np-xxxxxxxxxxxxxx",
-"name": "5G"
+"Id": "<network package id>",
+"Name": "<desired name for network instance>"
+}
+The input parameters are:
+- "Id" - The ID of the network package to use for the instance
+- "Name" - A name to identify the new network instance
+For example:
+{
+"Id": "np-0983abdef5566789",
+"Name": "MyNetworkInstance"
 }
 
-Use TerminateNS-xxxxxx step function to instantiate a network. Step function take the below input as JSON object
+This will invoke the state machine to create a new network instance using the provided network package and name
 
+To instantiate a network, please utilize the InstantiateNS-7o0LTzVDsTxg step function located at InstantiateNS-xxxxxxxx. This step function takes a JSON object as input with the following structure:
+
+{
+ "Id": "ni-xxxxxxxxxxxxxxxx"
+}
+
+The ni object can be queried from DynamoDB using the Id as a key. This object is associated with the np (network package) attribute
+
+To terminate the network instance, invoke the TerminateNS-xxxxxxxx step function with the following input JSON:
 {
 "Id": "ni-xxxxxxxxxxxxxxxx"
 }
-
-ni object could be query from dynamodb as a key and associated with attribute np (network package)
-
-Use TerminateNS-xxxxxxxx to terminate the network instance. Step function take the below input as JSON object:
-
+The network instance Id can be queried from DynamoDB using the ID as the hash key and "np" as the attribute containing the associated network package.
+To delete a network instance, invoke the DeleteNetworkInstance-xxxxx step function with the following input JSON:
 {
 "Id": "ni-xxxxxxxxxxxxxxxx"
 }
-
-ni object could be query from dynamodb as a key and associated with attribute np (network package)
-
-use Deletenetworkinstance-xxxxx to delete a network instance,  Step function take the below input as JSON object:
-
-{
-"Id": "ni-xxxxxxxxxxxxxxxx"
-}
-
-ni object could be query from dynamodb as a key and associated with attribute np (network package)
-
-Use DeleteNetworkPackages-xxxxxxx to delete np. step function take the below input as JSON object
-
+The network instance ID can be queried from DynamoDB using the ID as the hash key.
+To delete a network package, invoke the DeleteNetworkPackages-xxxxxxx step function with the following input JSON:
 {
 "Id": "np-xxxxxxxxxxx",
-"fp": "all" → optional
+"fp": "all" // Optional
 }
+Including "fp" : "all" will delete all associated function packages and remove their files from the S3 bucket. The network package ID can be used to query DynamoDB.
 
-fp with value all could be included as input to step function which effectively delete all function packages associated with network package and remove all associated files from S3 bucket
 
 
 
