@@ -228,7 +228,7 @@ class CdkTnbStack(Stack):
         # Create Event Bridge Rule for TNB-CloudFormation-CREATEFAILED
         CF_CREATEFAILED_rule = events.Rule(self,'CF_CreateFailed_rule', event_pattern=events.EventPattern(source=['aws.cloudformation'],detail={
                             "status-details": {
-                            "status": ["CREATE_FAILED"]
+                            "status": ["ROLLBACK_COMPLETE"]
                             }
                             },detail_type=["CloudFormation Stack Status Change"]))
         CF_CREATEFAILED_rule.add_target(targets.LambdaFunction(lambdaReturnTaskToken))
