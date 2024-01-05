@@ -145,6 +145,7 @@ class CdkTnbStack(Stack):
         with open(file_path, 'r', encoding='utf-8') as json_file:
             myasl = json.load(json_file)
         myasl['States']['Checkdepolymentstatus']['Parameters']['FunctionName']=lambdaCheckdepolymentstatus.function_arn
+        myasl['States']['DynamoDB DeleteItem']['Parameters']['TableName']=my_table.table_name
         with open(file_path, 'w', encoding='utf-8') as json_file:
             json.dump(myasl, json_file)
 
@@ -197,6 +198,7 @@ class CdkTnbStack(Stack):
         with open(file_path, 'r', encoding='utf-8') as json_file:
             myasl = json.load(json_file)
         myasl['States']['Checkdepolymentstatus']['Parameters']['FunctionName']=lambdaCheckdepolymentstatus.function_arn
+        myasl['States']['DynamoDB DeleteItem']['Parameters']['TableName']=my_table.table_name
         with open(file_path, 'w', encoding='utf-8') as json_file:
             json.dump(myasl, json_file)
 
