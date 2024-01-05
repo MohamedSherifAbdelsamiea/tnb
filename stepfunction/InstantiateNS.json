@@ -1,1 +1,96 @@
-{"Comment": "A description of my state machine", "StartAt": "GetSolNetworkInstance", "States": {"GetSolNetworkInstance": {"Type": "Task", "Next": "InstantiateSolNetworkInstance", "Parameters": {"NsInstanceId.$": "$.Id"}, "Resource": "arn:aws:states:::aws-sdk:tnb:getSolNetworkInstance", "Catch": [{"ErrorEquals": ["States.TaskFailed"], "Next": "Fail"}]}, "InstantiateSolNetworkInstance": {"Type": "Task", "Next": "Checkdepolymentstatus", "Parameters": {"NsInstanceId.$": "$.Id"}, "Resource": "arn:aws:states:::aws-sdk:tnb:instantiateSolNetworkInstance", "ResultPath": "$.metadata"}, "Checkdepolymentstatus": {"Type": "Task", "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken", "Parameters": {"FunctionName": "${Token[TOKEN.117]}", "Payload": {"token.$": "$$.Task.Token", "NetworkID.$": "$.Id"}}, "Retry": [{"ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException", "Lambda.TooManyRequestsException"], "IntervalSeconds": 1, "MaxAttempts": 3, "BackoffRate": 2}], "Next": "DynamoDB DeleteItem", "Catch": [{"ErrorEquals": ["States.ALL"], "Next": "Fail"}]}, "DynamoDB DeleteItem": {"Type": "Task", "Resource": "arn:aws:states:::dynamodb:deleteItem", "Parameters": {"TableName": "${Token[TOKEN.38]}", "Key": {"key": {"S": "token"}}}, "Next": "Success"}, "Success": {"Type": "Succeed"}, "Fail": {"Type": "Fail"}}}
+{
+    "Comment": "A description of my state machine",
+    "StartAt": "GetSolNetworkInstance",
+    "States": {
+      "GetSolNetworkInstance": {
+        "Type": "Task",
+        "Next": "InstantiateSolNetworkInstance",
+        "Parameters": {
+          "NsInstanceId.$": "$.Id"
+        },
+        "Resource": "arn:aws:states:::aws-sdk:tnb:getSolNetworkInstance",
+        "Catch": [
+          {
+            "ErrorEquals": [
+              "States.TaskFailed"
+            ],
+            "Next": "Fail"
+          }
+        ]
+      },
+      "InstantiateSolNetworkInstance": {
+        "Type": "Task",
+        "Next": "Checkdepolymentstatus",
+        "Parameters": {
+          "NsInstanceId.$": "$.Id"
+        },
+        "Resource": "arn:aws:states:::aws-sdk:tnb:instantiateSolNetworkInstance",
+        "ResultPath": "$.metadata"
+      },
+      "Checkdepolymentstatus": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+        "Parameters": {
+          "FunctionName": "arn:aws:lambda:sa-east-1:338293206254:function:CdkTnbStack-lambdaCheckdepolymentstatusF609F936-ZhXo2Rw0RGMy",
+          "Payload": {
+            "token.$": "$$.Task.Token",
+            "NetworkID.$": "$.Id"
+          }
+        },
+        "Retry": [
+          {
+            "ErrorEquals": [
+              "Lambda.ServiceException",
+              "Lambda.AWSLambdaException",
+              "Lambda.SdkClientException",
+              "Lambda.TooManyRequestsException"
+            ],
+            "IntervalSeconds": 1,
+            "MaxAttempts": 3,
+            "BackoffRate": 2
+          }
+        ],
+        "Next": "DynamoDB Token",
+        "Catch": [
+          {
+            "ErrorEquals": [
+              "States.ALL"
+            ],
+            "Next": "DynamoDB Token After Rollback"
+          }
+        ]
+      },
+      "DynamoDB Token After Rollback": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::dynamodb:deleteItem",
+        "Parameters": {
+          "TableName": "CdkTnbStack-tnbconfig8D6A2B78-Y3HGPBBUH6ZO",
+          "Key": {
+            "key": {
+              "S": "token"
+            }
+          }
+        },
+        "Next": "Fail"
+      },
+      "DynamoDB Token": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::dynamodb:deleteItem",
+        "Parameters": {
+          "TableName": "CdkTnbStack-tnbconfig8D6A2B78-Y3HGPBBUH6ZO",
+          "Key": {
+            "key": {
+              "S": "token"
+            }
+          }
+        },
+        "Next": "Success"
+      },
+      "Success": {
+        "Type": "Succeed"
+      },
+      "Fail": {
+        "Type": "Fail"
+      }
+    }
+  }
