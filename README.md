@@ -55,7 +55,7 @@ To delete a network instance, invoke the DeleteNetworkInstance-xxxxx step functi
 "Id": "ni-xxxxxxxxxxxxxxxx"
 }
 The network instance ID can be queried from DynamoDB using the ID as the hash key.
-To delete a network package, invoke the DeleteNetworkPackages-xxxxxxx step function with the following input JSON:
+To delete a network package, invoke the Deletetnbfunction-xxxxxxx step function with the following input JSON:
 {
 "Id": "np-xxxxxxxxxxx",
 "fp": "all" // Optional
