@@ -39,8 +39,8 @@ class CdkTnbStack(Stack):
         my_table = ddb.Table(self, 'tnbconfig',
                              partition_key={'name': 'key', 'type': ddb.AttributeType.STRING})
         
-        my_table.add_global_secondary_index(index_name="fp-index", partition_key={'name': 'fp', 'type': ddb.AttributeType.STRING})
-        my_table.add_global_secondary_index(index_name="np-index", partition_key={'name': 'np', 'type': ddb.AttributeType.STRING})  
+        #my_table.add_global_secondary_index(index_name="fp-index", partition_key={'name': 'fp', 'type': ddb.AttributeType.STRING})
+        #my_table.add_global_secondary_index(index_name="np-index", partition_key={'name': 'np', 'type': ddb.AttributeType.STRING})  
 
 
         # Create S3 Bucket for TNB Packages and NSD
