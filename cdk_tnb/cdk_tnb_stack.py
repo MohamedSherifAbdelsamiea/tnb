@@ -39,8 +39,8 @@ class CdkTnbStack(Stack):
         my_table = ddb.Table(self, 'tnbconfig',
                              partition_key={'name': 'key', 'type': ddb.AttributeType.STRING})
         
-        my_table.add_global_secondary_index(index_name="fp-index", partition_key={'name': 'fp', 'type': ddb.AttributeType.STRING})
-        
+        #my_table.add_global_secondary_index(index_name="fp-index", partition_key={'name': 'fp', 'type': ddb.AttributeType.STRING})
+        #my_table.add_global_secondary_index(index_name="np-index", partition_key={'name': 'np', 'type': ddb.AttributeType.STRING})  
 
 
         # Create S3 Bucket for TNB Packages and NSD
@@ -49,12 +49,12 @@ class CdkTnbStack(Stack):
         bucket = _s3.Bucket(self, "MyBucket", bucket_name='tnbpackages-cdk-{}'.format(uid), removal_policy=RemovalPolicy.DESTROY, event_bridge_enabled=True)
 
         # Create key pair in EC2 in the same region of TNB deployment
-        cfnKeyPair = _ec2.CfnKeyPair(self, 'MyCfnKeyPair' , key_name='tnb-{}-keypair'.format(Stack.of(self).region))
+        #cfnKeyPair = _ec2.CfnKeyPair(self, 'MyCfnKeyPair' , key_name='tnb-{}-keypair'.format(Stack.of(self).region))
 
         # Create Lambda Functions artifacts
         lambdaTNBUploadCSAR = _lambda.Function(
             self, 'lambdaTNBUploadCSAR',
-            runtime=_lambda.Runtime.PYTHON_3_7,
+            runtime=_lambda.Runtime.PYTHON_3_10,
             code=_lambda.Code.from_asset('lambda'),
             handler='TNBUploadCSAR.lambda_handler',
             timeout=Duration.minutes(3),
@@ -62,7 +62,7 @@ class CdkTnbStack(Stack):
         )
         lambdaTNBuploadNSD = _lambda.Function(
             self, 'lambdaTNBuploadNSD',
-            runtime=_lambda.Runtime.PYTHON_3_7,
+            runtime=_lambda.Runtime.PYTHON_3_10,
             code=_lambda.Code.from_asset('lambda'),
             handler='TNBuploadNSD.lambda_handler',
             timeout=Duration.minutes(3),
@@ -70,7 +70,7 @@ class CdkTnbStack(Stack):
         )
         lambdaCheckdepolymentstatus = _lambda.Function(
             self, 'lambdaCheckdepolymentstatus',
-            runtime=_lambda.Runtime.PYTHON_3_7,
+            runtime=_lambda.Runtime.PYTHON_3_10,
             code=_lambda.Code.from_asset('lambda'),
             handler='Checkdepolymentstatus.lambda_handler',
             timeout=Duration.minutes(3),
@@ -81,7 +81,7 @@ class CdkTnbStack(Stack):
         )
         lambdaReturnTaskToken = _lambda.Function(
             self, 'lambdaReturnTaskToken',
-            runtime=_lambda.Runtime.PYTHON_3_7,
+            runtime=_lambda.Runtime.PYTHON_3_10,
             code=_lambda.Code.from_asset('lambda'),
             handler='ReturnTaskToken.lambda_handler',
             timeout=Duration.minutes(3),
@@ -93,7 +93,7 @@ class CdkTnbStack(Stack):
 
         lambdaupdatefp = _lambda.Function(
             self, 'lambdaupdatefp',
-            runtime=_lambda.Runtime.PYTHON_3_7,
+            runtime=_lambda.Runtime.PYTHON_3_10,
             code=_lambda.Code.from_asset('lambda'),
             handler='updatefp.lambda_handler',
             timeout=Duration.minutes(3),
@@ -103,7 +103,6 @@ class CdkTnbStack(Stack):
             }
         )
 
-        
 
         # Update Step Function ASL file with CDK parameters
         file_path = 'stepfunction/onboardfunctionpackage.json'
@@ -160,7 +159,7 @@ class CdkTnbStack(Stack):
         # Create Event Bridge Rule for OnboardPackage
         lambdaStart_SFN_onboardfunctionpackage = _lambda.Function(
             self, 'lambdaStart_SFN_onboardfunctionpackage',
-            runtime=_lambda.Runtime.PYTHON_3_7,
+            runtime=_lambda.Runtime.PYTHON_3_10,
             code=_lambda.Code.from_asset('lambda'),
             handler='Start_SFN_onboardfunctionpackage.lambda_handler',
             timeout=Duration.minutes(2),
@@ -223,6 +222,14 @@ class CdkTnbStack(Stack):
                             }
                             },detail_type=["CloudFormation Stack Status Change"]))
         CF_DeleteComplete_rule.add_target(targets.LambdaFunction(lambdaReturnTaskToken))
+
+        # Create Event Bridge Rule for TNB-CloudFormation-CREATEFAILED
+        CF_CREATEFAILED_rule = events.Rule(self,'CF_CreateFailed_rule', event_pattern=events.EventPattern(source=['aws.cloudformation'],detail={
+                            "status-details": {
+                            "status": ["CREATE_FAILED"]
+                            }
+                            },detail_type=["CloudFormation Stack Status Change"]))
+        CF_CREATEFAILED_rule.add_target(targets.LambdaFunction(lambdaReturnTaskToken))
         
         
         
@@ -304,11 +311,6 @@ class CdkTnbStack(Stack):
             definition_string=file
         )
 
-
- 
-
-        my_table.add_global_secondary_index(index_name="np-index", partition_key={'name': 'np', 'type': ddb.AttributeType.STRING})
-
         # Create AWS TNB service role for Amazon EKS cluster
 
 
@@ -364,3 +366,4 @@ class CdkTnbStack(Stack):
         
 
 
+        
