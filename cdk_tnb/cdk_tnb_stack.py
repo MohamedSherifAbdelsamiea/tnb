@@ -178,6 +178,11 @@ class CdkTnbStack(Stack):
                     }
                 },detail_type=["Object Created"]))
         OnboardPackage_rule.add_target(targets.LambdaFunction(lambdaStart_SFN_onboardfunctionpackage))
+        #OnboardPackage_rule.add_target(targets.SfnStateMachine(cfnStateMachine_onboardfunctionpackage))
+
+        """ OnboardPackage_rule = events.Rule(self,'OnboardPackage_rule', 
+                    event_pattern=events.EventPattern(source=['aws.s3'],detail={"bucket": {"name": [bucket.bucket_name]}},detail_type=["Object Created"]))
+        OnboardPackage_rule.add_target(targets.SfnStateMachine(cfnStateMachine_onboardfunctionpackage)) """
 
         # Update Step Function ASL file with CDK parameters
         file_path = 'stepfunction/Deletenetworkinstance.json'
