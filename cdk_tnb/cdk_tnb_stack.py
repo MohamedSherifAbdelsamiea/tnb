@@ -40,7 +40,8 @@ class CdkTnbStack(Stack):
                              partition_key={'name': 'key', 'type': ddb.AttributeType.STRING})
         
         my_table.add_global_secondary_index(index_name="fp-index", partition_key={'name': 'fp', 'type': ddb.AttributeType.STRING})
-        my_table.add_global_secondary_index(index_name="np-index", partition_key={'name': 'np', 'type': ddb.AttributeType.STRING})  
+        my_table.add_global_secondary_index(index_name="np-index", partition_key={'name': 'np', 'type': ddb.AttributeType.STRING})
+
 
 
         # Create S3 Bucket for TNB Packages and NSD
@@ -122,8 +123,15 @@ class CdkTnbStack(Stack):
         file = open("stepfunction/onboardfunctionpackage.json","rt").read()
         cfnStateMachine_onboardfunctionpackage = sfn.CfnStateMachine(
             self, 'onboardfunctionpackage', role_arn=sf_role.role_arn,
-            definition_string=file
-        )
+            definition_string=file)
+        
+
+        #file = open("stepfunction/onboardfunctionpackage.json","rt").read()
+        
+        """ cfnStateMachine_onboardfunctionpackage = sfn.StateMachine(
+            self, 'onboardfunctionpackage', role=sf_role,
+            definition=sfn.DefinitionBody.from_file("./stepfunction/onboardfunctionpackage.json")
+        ) """
 
         # Update Step Function ASL file with CDK parameters
         file_path = 'stepfunction/Createnetworkinstance.json'
