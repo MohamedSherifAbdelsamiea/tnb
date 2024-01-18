@@ -10,7 +10,7 @@
 
 # Architecture
 
-![image](https://github.com/MohamedSherifAbdelsamiea/tnb/assets/38582068/c490608e-cc1b-47ed-965e-a311a9960d6c)
+![image](https://github.com/MohamedSherifAbdelsamiea/tnb/assets/38582068/4ec39117-bf17-4730-9df7-cff645d06be5)
 
 # Description
 
