@@ -121,17 +121,17 @@ class CdkTnbStack(Stack):
 
         # Create State Machine Step Function - onboardfunctionpackage
         file = open("stepfunction/onboardfunctionpackage.json","rt").read()
-        cfnStateMachine_onboardfunctionpackage = sfn.CfnStateMachine(
+        """ cfnStateMachine_onboardfunctionpackage = sfn.CfnStateMachine(
             self, 'onboardfunctionpackage', role_arn=sf_role.role_arn,
-            definition_string=file)
+            definition_string=file) """
         
 
         #file = open("stepfunction/onboardfunctionpackage.json","rt").read()
         
-        """ cfnStateMachine_onboardfunctionpackage = sfn.StateMachine(
+        cfnStateMachine_onboardfunctionpackage = sfn.StateMachine(
             self, 'onboardfunctionpackage', role=sf_role,
-            definition=sfn.DefinitionBody.from_file("./stepfunction/onboardfunctionpackage.json")
-        ) """
+            definition_body=sfn.DefinitionBody.from_string(file)
+        )
 
         # Update Step Function ASL file with CDK parameters
         file_path = 'stepfunction/Createnetworkinstance.json'
@@ -165,32 +165,14 @@ class CdkTnbStack(Stack):
             self, 'InstantiateNS', role_arn=sf_role.role_arn,
             definition_string=file
         )
-
-        # Create Event Bridge Rule for OnboardPackage
-        lambdaStart_SFN_onboardfunctionpackage = _lambda.Function(
-            self, 'lambdaStart_SFN_onboardfunctionpackage',
-            runtime=_lambda.Runtime.PYTHON_3_10,
-            code=_lambda.Code.from_asset('lambda'),
-            handler='Start_SFN_onboardfunctionpackage.lambda_handler',
-            timeout=Duration.minutes(2),
-            role=lambda_role,
-            environment={
-                'onboardfunctionpackage_arn' : cfnStateMachine_onboardfunctionpackage.attr_arn,
-            }
-        )
-
         
         OnboardPackage_rule = events.Rule(self,'OnboardPackage_rule', event_pattern=events.EventPattern(source=['aws.s3'],detail={
             "bucket": {
             "name": [bucket.bucket_name]
                     }
                 },detail_type=["Object Created"]))
-        OnboardPackage_rule.add_target(targets.LambdaFunction(lambdaStart_SFN_onboardfunctionpackage))
-        #OnboardPackage_rule.add_target(targets.SfnStateMachine(cfnStateMachine_onboardfunctionpackage))
-
-        """ OnboardPackage_rule = events.Rule(self,'OnboardPackage_rule', 
-                    event_pattern=events.EventPattern(source=['aws.s3'],detail={"bucket": {"name": [bucket.bucket_name]}},detail_type=["Object Created"]))
-        OnboardPackage_rule.add_target(targets.SfnStateMachine(cfnStateMachine_onboardfunctionpackage)) """
+        #OnboardPackage_rule.add_target(targets.LambdaFunction(lambdaStart_SFN_onboardfunctionpackage))
+        OnboardPackage_rule.add_target(targets.SfnStateMachine(cfnStateMachine_onboardfunctionpackage))
 
         # Update Step Function ASL file with CDK parameters
         file_path = 'stepfunction/Deletenetworkinstance.json'
@@ -247,67 +229,6 @@ class CdkTnbStack(Stack):
                             }
                             },detail_type=["CloudFormation Stack Status Change"]))
         CF_CREATEFAILED_rule.add_target(targets.LambdaFunction(lambdaReturnTaskToken))
-        
-        
-        
-        """ #lambda to delete vnfd S3 object
-        
-        lambdadeleteS3VNFD= _lambda.Function(
-            self, 'lambdadeleteS3VNFD',
-            runtime=_lambda.Runtime.PYTHON_3_7,
-            code=_lambda.Code.from_asset('lambda'),
-            handler='lambdadeleteS3VNFD.lambda_handler',
-            timeout=Duration.minutes(2),
-            role=lambda_role,
-            environment={
-                'bucket' : bucket.bucket_name
-            }
-        )
-
-       # Update Step Function ASL file with CDK parameters
-        file_path = 'stepfunction/DeleteFunctionPackage.json'
-        with open(file_path, 'r', encoding='utf-8') as json_file:
-            myasl = json.load(json_file)
-        myasl['States']['DeleteObject']['Parameters']['Bucket']=bucket.bucket_name
-        myasl['States']['DynamoDB DeleteItem']['Parameters']['TableName']=my_table.table_name
-        #myasl['States']['Lambda delete S3']['Parameters']['FunctionName']=lambdadeleteS3VNFD.function_arn
-        with open(file_path, 'w', encoding='utf-8') as json_file:
-            json.dump(myasl, json_file)
-        # Create State Machine Step Function - DeleteFunctionPackage
-        file = open("stepfunction/DeleteFunctionPackage.json","rt").read()
-        cfnStateMachine_DeleteFunctionPackage = sfn.CfnStateMachine(
-            self, 'DeleteFunctionPackage', role_arn=sf_role.role_arn,
-            definition_string=file
-        )
-
-        # Create Lambda for Delete Network Package
-        LambdaDeleteNetworkPackages= _lambda.Function(
-            self, 'LambdaDeleteNetworkPackages',
-            runtime=_lambda.Runtime.PYTHON_3_7,
-            code=_lambda.Code.from_asset('lambda'),
-            handler='LambdaDeleteNetworkPackages.lambda_handler',
-            timeout=Duration.minutes(2),
-            role=lambda_role,
-            environment={
-                'ddb' : my_table.table_name,
-                'bucket' : bucket.bucket_name,
-                'sfnvnfd' : cfnStateMachine_DeleteFunctionPackage.attr_arn
-            }
-        )
-        # Update Step Function ASL file with CDK parameters
-        file_path = 'stepfunction/DeleteNetworkPackages.json'
-        with open(file_path, 'r', encoding='utf-8') as json_file:
-            myasl = json.load(json_file)
-        myasl['States']['Delete Network Package']['Parameters']['FunctionName']=LambdaDeleteNetworkPackages.function_arn
-        with open(file_path, 'w', encoding='utf-8') as json_file:
-            json.dump(myasl, json_file)
-            
-        # Create State Machine Step Function - DeleteNetworkPackages
-        file = open("stepfunction/DeleteNetworkPackages.json","rt").read()
-        cfnStateMachine_DeleteNetworkPackages = sfn.CfnStateMachine(
-            self, 'DeleteNetworkPackages', role_arn=sf_role.role_arn,
-            definition_string=file
-        ) """
 
         # Update Step Function ASL file with CDK parameters
         file_path = 'stepfunction/Deletetnbfunction.json'
@@ -329,7 +250,6 @@ class CdkTnbStack(Stack):
         )
 
         # Create AWS TNB service role for Amazon EKS cluster
-
 
         client = boto3.client('iam')
 
