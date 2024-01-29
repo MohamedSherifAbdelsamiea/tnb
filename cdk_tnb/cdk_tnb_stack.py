@@ -50,7 +50,7 @@ class CdkTnbStack(Stack):
         bucket = _s3.Bucket(self, "MyBucket", bucket_name='tnbpackages-cdk-{}'.format(uid), removal_policy=RemovalPolicy.DESTROY, event_bridge_enabled=True)
 
         #Create key pair in EC2 in the same region of TNB deployment
-        #cfnKeyPair = _ec2.CfnKeyPair(self, 'MyCfnKeyPair' , key_name='tnb-{}-keypair'.format(Stack.of(self).region))
+        cfnKeyPair = _ec2.CfnKeyPair(self, 'MyCfnKeyPair' , key_name='tnb-{}-keypair'.format(Stack.of(self).region))
 
         # Create Lambda Functions artifacts
         lambdaTNBUploadCSAR = _lambda.Function(
